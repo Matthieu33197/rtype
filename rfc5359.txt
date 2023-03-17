@@ -1,0 +1,409 @@
+Group Epitech R-Type
+Request for comments: undefined
+                                                                                   T. Fuller
+                                                                                    N. Varga
+                                                                                Janvier 2023
+                                R-Type Network Protocol
+
+
+Status of this Memo
+
+    This memo is the unofficial specification for the R-Type TCP and UDP protocols. R-Type
+    is a video game saga created by the company Irem in 1987.
+    Distribution of this memo is unlimited.
+
+
+Table of contents
+
+    1.    Introduction
+	1.a    Type definitions
+	1.b	   Commands list
+	1.c    Actions list
+	1.d	   Commands definitions
+    2.    R-Type architecture
+	2.a    Message payload
+    2.b    Connection protocol
+	3.    Lobby
+	3.a    Creating a lobby
+	3.b    Joining a lobby
+	3.c    Listing lobbys
+	3.d    Listing players inside a lobby
+	3.e    Get the score of a lobby
+	3.f    Send a tchat
+	3.	  Server update
+	3.a    Player event
+
+
+1. Introduction
+
+    The goal of the R-Type is to create a multiplayer part to the Game R-Type.
+    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL, NOT", "SHOULD",
+    "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
+    be interpreted as described in RFC 2119.
+
+1.a Type definitions
+
+	uint8_t: unsigned 8-bit integer
+	int8_t: 8-bit integer
+	uint16_t: unsigned 16-bit integer
+	uint32_t: unsigned 32-bit integer
+
+1.b Commands list
+
+	This enum class can be found in the /Lib/Network/include/codes.hpp
+
+	Commands id:
+
+		HELLO_TCP = 0
+		LOBBY_PORT = 1
+		ID_PLAYER = 2
+		HELLO_LOBBY = 3
+		MOVE = 4
+		UPDATE_ENTITIES = 5
+		SHOOT = 6
+		UNLOAD_ENTITY = 7
+		CREATE_LOBBY = 8
+		JOIN_LOBBY = 9
+		GET_LOBBY_LIST = 10
+		LOBBY_LIST = 11
+		PLAYER_LIST_LOBBY = 12
+		LOBBY_CREATION_SUCCESS = 13
+		LOBBY_CREATION_FAILURE = 14
+		SCORE = 15
+		START_GAME = 16
+		LEAVE = 17
+		POS = 18
+		UNKNOWN = 19
+		INPUT_TCHAT = 20
+		TCHAT = 21
+
+	Figure 1.0
+
+1.c Actions list
+
+	actions id:
+
+        MOVE_LEFT = 0
+        MOVE_RIGHT = 1
+        MOVE_UP = 2
+        MOVE_DOWN = 3
+        SHOOT = 4
+        NOTHING = 5
+
+	Figure 1.1
+
+
+1.d Commands definitions
+
+	command alias: HELLO_TCP
+	protocol: TCP
+	header_id: 0
+	size: 0 bytes
+	body:
+		none
+
+	command alias: LOBBY_PORT
+	protocol: TCP
+	header_id: 1
+	size: 2 bytes
+	body:
+		(unsigned short int) port: port number
+
+	command alias: ID_PLAYER
+	protocol: TCP
+	header_id: 2
+	size: 4 bytes
+	body:
+		(uint32_t) id: assigned id
+
+	command alias: HELLO_LOBBY
+	protocol: UDP
+	header_id: 3
+	size: 4 bytes
+	body:
+		(uint32_t) id: assigned id
+
+	command alias: MOVE
+	protocol: UDP
+	header_id: 4
+	size: 5 bytes
+	body:
+		(uint32_t) id: client id
+		(int8_t) direction: actions (Figure 1.1)
+
+	command alias: UPDATE_ENTITIES
+	protocol: UDP
+	header_id: 5
+	size: 11 bytes or 9 bytes
+	body:
+		(uint32_t) id: client id
+		(uint8_t) type: entity type
+		(uint16_t) x: x position of entity
+		(uint16_t) y: y position of entity
+		(uint16_t) health: health of entity if entity has a health
+		||
+		(uint32_t) id: client id
+		(uint8_t) type: entity type
+		(uint16_t) x: x position of entity
+		(uint16_t) y: y position of entity
+		OPTIONAL (uint16_t) health: health of entity if entity has a health
+
+	command alias: SHOOT
+	protocol: UDP
+	header_id: 6
+	size: 4 bytes
+	body:
+		(uint32_t) id: client id
+
+	command alias: UNLOAD_ENTITY
+	protocol: UDP
+	header_id: 7
+	size: 4 bytes
+	body:
+		(uint32_t) id: entity id
+
+	command alias: CREATE_LOBBY
+	protocol: TCP
+	header_id: 8
+	size: 0 byte
+	body: none
+
+	command alias: JOIN_LOBBY
+	protocol: TCP
+	header_id: 9
+	size: 4 bytes
+	body:
+		(uint32_t) id: entity id
+
+	command alias: GET_LOBBY_LIST
+	protocol: UDP
+	header_id: 10
+	size: 0 byte
+	body: none
+
+	command alias: LOBBY_LIST
+	protocol: TCP
+	header_id: 11
+	size: 0 byte
+	body: none
+
+	command alias: PLAYER_LIST_LOBBY
+	protocol: UDP
+	header_id: 12
+	size: 0 byte
+	body: none
+
+	command alias: LOBBY_CREATION_SUCCESS
+	protocol: TCP
+	header_id: 13
+	size: 0 byte
+	body: none
+
+	command alias: LOBBY_CREATION_FAILURE
+	protocol: TCP
+	header_id: 14
+	size: 0 byte
+	body: none
+
+	command alias: SCORE
+	protocol: UDP
+	header_id: 15
+	size: 4 bytes
+	body:
+		(uint32_t) score: global game score
+
+	command alias: START_GAME
+	protocol: UDP
+	header_id: 16
+	size: 0 byte
+	body: none
+
+	command alias: LEAVE
+	protocol: UDP
+	header_id: 17
+	size: 4 bytes
+	body:
+		(uint32_t) id: assigned id
+
+	command alias: POS
+	protocol: UDP
+	header_id: 18
+	size: 6 bytes
+	body:
+		(int8_t) x: x coordinate of an entity
+		(int8_t) y: y coordinate of an entity
+		(uint32_t) id: assigned id
+
+	command alias: UNKNOWN
+	protocol: TCP
+	header_id: 19
+	size: 0 byte
+	body: none
+
+	command alias: INPUT_TCHAT
+	protocol: UDP
+	header_id: 20
+	size: n bytes
+	body:
+		(int8_t) letter: n letters of a text message
+
+	command alias: TCHAT
+	protocol: UDP
+	header_id: 21
+	size: n bytes
+	body:
+		(int8_t) letter: n letters of a text message
+
+
+2. R-Type architecture
+
+						     Lobby Manager
+				+----------------------------------+
+				|                                  |
+				|           protocol: TCP          |
+				|                                  |
+				|            Lobby list            |
+				|  +----------------------------+  |
+				|  |+-----++-----++-----++-----+|  |
+				|  ||lobby||lobby||lobby||lobby||  |
+				|  || UDP || UDP || UDP || UDP ||  |
+				|  |+-----++-----++-----++-----+|  |
+				|  +----------------------------+  |
+				+----------------------------------+
+
+
+								Client
+						+--------------------+
+						|                    |
+						| protocol: UDP, TCP |
+						|                    |
+						+--------------------+
+    Figure 2.0
+
+2.a Message payload
+
+	Every message send through UPD or TCP between the client or the server MUST
+	have this format:
+
+	Message structure:
+
+	Message header													   Message body
+	|------------------------------------------------------------------|---------|
+	+---------------------------------+--------------------------------+---------+
+	|header_id: 4 bytes signed integer|size: 4 bytes non signed integer|data body|
+	+---------------------------------+--------------------------------+---------+
+
+	The MessageHeader structure represent the header of the message.
+	It contains the <header_id> attribut used to passe the command id to be
+	executed by the server or the client (Figure 1.0).
+	The <size> attribut is the number of bytes contained in the body.
+
+	The body of the message is binary encoded in chunks of uint8_t, so a uint32_t type is
+	spread in 4 uint8_t chunks. This type of implementation does not permite non standard
+	types.
+
+	If you are coding in c++ you can grab the /Lib/Network/include/message.hpp header file
+	to have a full exemple.
+
+2.b Connection protocol
+
+	The R-Type connection protocol is a 2 steps job, please read the 1.b part before reading
+	this next part.
+
+	The client connect to the server by sending a message with <header_id> equal
+	to HELLO_TCP (Figure 1.0), and <size> equal to 0, to notify the server
+	with a new connection.
+
+	The server respond by sending a message with <header_id> equal to ID_PLAYER, containing
+	the uuid assigned to the client.
+
+	This uuid MUST be saved by the client, because most request require the uuid of the player
+	to work.
+
+
+3. Lobby
+
+3.a Creating a lobby
+
+	To ask the server to create a lobby, a client MUST send a message with <header_id> equal
+	to CREATE_LOBBY.
+
+	The server will respond with a message with <header_id> equal to LOBBY_PORT containing
+	the udp port of the new udp server lobby.
+
+	The client MUST send a message with <header_id> equal to HELLO_LOBBY through UDP
+	to the new lobby to notify the lobby that a new client joined.
+
+	The server finaly notify every client with a message with <header_id> equal to
+	LOBBY_LIST containing for each lobby, the number of player inside the lobby,
+	and the lobby uuid.
+
+3.b Joining a lobby
+
+	To join a lobby, the client MUST send a message with <header_id> equal to JOIN_LOBBY
+	containing the uuid of the lobby the client wants to join.
+
+	The server will respond with a message with <header_id> equal to LOBBY_PORT containing
+	the udp port of the lobby.
+
+	The client finaly MUST send a message with <header_id> equal to HELLO_LOBBY through UDP
+	to the new lobby to notify the lobby that a new client joined.
+
+	The server finaly notify every client with a message with <header_id> equal to
+	PLAYER_LIST_LOBBY containing for each player it's uuid.
+
+3.c Listing lobbys
+
+	To get the list of server lobbys, the client send a message with <header_id> equal
+	to GET_LOBBY_LIST.
+
+	The server respond with a message with <header_id> equal to LOBBY_LIST containing
+	for each lobby, the number of player inside the lobby, and the lobby uuid.
+
+3.d Listing players inside a lobby
+
+	To get the list of players inside a lobby, the client send a message with
+	<header_id> equal to PLAYER_LIST_LOBBY.
+
+	The server respond with a message with <header_id> equal to PLAYER_LIST_LOBBY
+	containing for each player it's uuid.
+
+3.e Get the score of a lobby
+
+	To get the score of the lobby, the client send a message with <header_id> equal to
+	SCORE.
+
+	The server respond with a message with <header_id> equal to SCORE, containing the lobby
+	score.
+
+3.f Send a tchat
+
+	To send a tchat, the client send a message with <header_id> equal to INPUT_TCHAT,
+	containing the message.
+
+	The server will then notify every client in lobby with a message with <header_id> equal to
+	TCHAT, containing the message.
+
+3. Server update
+
+	Please read the 1.c Commands definitions beforehand.
+
+	The server will send a batch of UPDATE_ENTITIES commands.
+	Each command update an entity with it's position, it's health if it has a health.
+	The id and the type of the entity is also sent to help the client recognise it.
+
+
+3.a Player event
+
+	See Figure 1.1.
+
+	When a player press an arrow key for exemple it will send message with <header_id> set
+	to MOVE along with the entity_id and the direction constants that are set between MOVE_LEFT
+	and MOVE_DOWN. When the server receive the information it will update internaly the player
+	position and when the client will receive the update batch described in the last part, the
+	player position will be updated.
+
+	If a player press a key that shoot a rocket, a message with <header_id> equal to SHOOT will
+	be sent, and with the player id in the body.
+	The server will then create a new rocket entity and the client will receive in the next update
+	batch a new rocket entity.
