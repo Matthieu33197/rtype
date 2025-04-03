@@ -126,7 +126,6 @@ When deleting something:
 | Martin Leblancs | [MartinLeblancs][GhML] |
 | Tom Fuller | [TomDuCoin][GhTF] |
 | Matthieu Queru | [Matthieu33197][GhMQ] |
-| Noe Moyen | [NoeMoyen][GhNM] |
 | Noel Varga | [noelvarga25][GhNV] |
 
 
@@ -135,7 +134,6 @@ When deleting something:
    [GhML]: <https://github.com/MartinLeblancs>
    [GhTF]: <https://github.com/TomDuCoin>
    [GhMQ]: <https://github.com/Matthieu33197>
-   [GhNM]: <https://github.com/NoeMoyen>
    [GhNV]: <https://github.com/noelvarga25>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
